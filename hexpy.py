@@ -3,6 +3,7 @@ from math import sqrt
 from PySide6.QtCore import Qt, QRect, QPoint, QFile
 from PySide6.QtWidgets import QApplication, QLabel, QWidget, QMainWindow, QPushButton, QGraphicsView
 from PySide6.QtGui import QPainter, QColor, QFont, QPen, QIcon, QImage, QFont, QPolygon, QPixmap, QPainterPath, QBrush
+from AI import AI
 #записывать для каждой координаты цвет в словарь
 class Window(QMainWindow):
 
@@ -20,6 +21,8 @@ class Window(QMainWindow):
         self.hexpos = [] #posdata
         #self.hex = []
         self.player_color = True
+        self.computer = AI()
+        self.computer.set_start_information(self.size.width()/2.1, self.size.height()/50, 11)
 
     def paintEvent(self, event):
         qp = QPainter()
@@ -60,6 +63,9 @@ class Window(QMainWindow):
             stepper(self.size.width()/2.1+x, self.size.height()/50+y, 30,50,size)
             x-=30
             y+=50
+        self.computer.wincheker(self.hexpos, self.hexcolor, size)
+        print(self.computer.winflag)
+        
 
     def get_data(self):
         return (self.hex_pos, self.hex_color)
