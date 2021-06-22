@@ -22,7 +22,8 @@ class Window(QMainWindow):
         #self.hex = []
         self.player_color = True
         self.computer = AI()
-        self.computer.set_start_information(self.size.width()/2.1, self.size.height()/50, 11)
+        self.groundsize = 11
+        self.computer.set_start_information(self.size.width()/2.1, self.size.height()/50, self.groundsize)
 
     def paintEvent(self, event):
         qp = QPainter()
@@ -35,15 +36,26 @@ class Window(QMainWindow):
         #qp.setPen(pen)
         font = QFont("Times", 60, QFont.Bold)
         qp.setFont(font)
-        self.setplayground(qp, 11)
+        self.setplayground(qp, self.groundsize)
 
     def setplayground(self, qp, size):
+        if self.player_color == False:
+            self.hexcolor.append(self.player_color)
+            #self.computer.bot(self.hexpos, self.hexcolor, self.groundsize)
+            #print(self.hexpos)
+            #mas = self.computer.bot(self.hexpos, self.hexcolor, self.groundsize)
+            #self.hexcolor = mas[1]
+            #self.hexpos = mas[0]
+            self.hexpos.append(self.computer.bot(self.hexpos, self.hexcolor, self.groundsize))
+            #print(self.hexpos)
+            #print(len(self.hexpos))
+            self.player_color = True
         def stepper(x_start, y_start, x_set, y_set, size):
             x, y = 0,0
             for i in range(size):
                 for s in range(len(self.hexpos)):
-                    if(self.hexpos[s][0] - 60 < x_start+x and self.hexpos[s][0] + 0 > x_start+x
-                    and self.hexpos[s][1] - 40 < y_start+y and self.hexpos[s][1] + 10 > y_start+y): #function, and name for constant
+                    if(self.hexpos[s][0] - 60 < x_start+x and self.hexpos[s][0] + 0 >= x_start+x
+                    and self.hexpos[s][1] - 40 < y_start+y and self.hexpos[s][1] + 10 >= y_start+y): #function, and name for constant
                         self.hex_x = i
                         if self.hexcolor[s] == True:
                             self.color = "red"
@@ -63,8 +75,9 @@ class Window(QMainWindow):
             stepper(self.size.width()/2.1+x, self.size.height()/50+y, 30,50,size)
             x-=30
             y+=50
-        self.computer.wincheker(self.hexpos, self.hexcolor, size)
-        print(self.computer.winflag)
+        print(self.computer.winchecker_red(self.hexpos, self.hexcolor, size))
+        #self.computer.wincheker_blue(self.hexpos, self.hexcolor, size)
+        #print(self.computer.winflag)
         
 
     def get_data(self):
@@ -83,13 +96,11 @@ class Window(QMainWindow):
     
     def mousePressEvent(self, event):
         if event.button() == Qt.LeftButton:
-            self.player_color = not self.player_color
-            self.hexcolor.append(self.player_color)
             if self.player_color == True:
-                print((event.x(), event.y()))
+                self.hexcolor.append(self.player_color)
+                #print((event.x(), event.y()))
                 self.hexpos.append((event.x(), event.y()))
-            else:
-                pass
+                self.player_color = False
             #вставь ИИ здесь
             self.update()
     
