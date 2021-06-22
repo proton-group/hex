@@ -14,12 +14,10 @@ class Window(QMainWindow):
         self.size = screen.size()
         self.buttons()
         self.showFullScreen()
-        self.color = "black"
+        self.color = "white"
         self.setMouseTracking(True)
-        #self.hex_x, self.hex_y = 0,0
-        self.hexcolor = [] #отдельный класс?
+        self.hexcolor = [] 
         self.hexpos = [] #posdata
-        #self.hex = []
         self.player_color = True
         self.computer = AI()
         self.groundsize = 11
@@ -32,8 +30,7 @@ class Window(QMainWindow):
         qp.end()
 
     def painter(self, qp):
-        pen = QPen(Qt.black, 8, Qt.SolidLine)
-        #qp.setPen(pen)
+        #pen = QPen(Qt.black, 8, Qt.SolidLine)
         font = QFont("Times", 60, QFont.Bold)
         qp.setFont(font)
         self.setplayground(qp, self.groundsize)
@@ -41,21 +38,23 @@ class Window(QMainWindow):
     def setplayground(self, qp, size):
         if self.player_color == False:
             self.hexcolor.append(self.player_color)
-            #self.computer.bot(self.hexpos, self.hexcolor, self.groundsize)
-            #print(self.hexpos)
-            #mas = self.computer.bot(self.hexpos, self.hexcolor, self.groundsize)
-            #self.hexcolor = mas[1]
-            #self.hexpos = mas[0]
             self.hexpos.append(self.computer.bot(self.hexpos, self.hexcolor, self.groundsize))
-            #print(self.hexpos)
-            #print(len(self.hexpos))
             self.player_color = True
+        def markstepper(x_start, y_start, x_set, y_set, size, color):
+            x,y = 0, 0
+            for i in range(size):
+                self.color = color
+                qp.setBrush(self.brushset())
+                self.hex_x = 0
+                qp.drawPolygon(self.hex(x_start+x, y_start+y))
+                x+=x_set
+                y+=y_set
         def stepper(x_start, y_start, x_set, y_set, size):
-            x, y = 0,0
+            x, y = 0, 0
             for i in range(size):
                 for s in range(len(self.hexpos)):
                     if(self.hexpos[s][0] - 60 < x_start+x and self.hexpos[s][0] + 0 >= x_start+x
-                    and self.hexpos[s][1] - 40 < y_start+y and self.hexpos[s][1] + 10 >= y_start+y): #function, and name for constant
+                    and self.hexpos[s][1] - 40 < y_start+y and self.hexpos[s][1] + 10 >= y_start+y):
                         self.hex_x = i
                         if self.hexcolor[s] == True:
                             self.color = "red"
@@ -63,9 +62,17 @@ class Window(QMainWindow):
                             self.color = "blue"
                         qp.setBrush(self.brushset())
                         qp.drawPolygon(self.hex(x_start+x, y_start+y))
+                self.computer.winchecker_red(self.hexpos, self.hexcolor, size)
+                if self.computer.winflag:
+                    self.computer.winflag = False
+                    self.color = "red"
+                self.computer.winchecker_blue(self.hexpos, self.hexcolor, size)
+                if self.computer.winflag:
+                    self.computer.winflag = False
+                    self.color = "blue"
                 qp.setBrush(self.brushset())
                 self.hex_x = 0
-                self.color = "black"
+                self.color = "white"
                 qp.drawPolygon(self.hex(x_start+x, y_start+y))
                 x+=x_set
                 y+=y_set
@@ -75,15 +82,16 @@ class Window(QMainWindow):
             stepper(self.size.width()/2.1+x, self.size.height()/50+y, 30,50,size)
             x-=30
             y+=50
-        print(self.computer.winchecker_red(self.hexpos, self.hexcolor, size))
-        #self.computer.wincheker_blue(self.hexpos, self.hexcolor, size)
-        #print(self.computer.winflag)
+        markstepper(self.size.width()/2, self.size.height()/49, 30,50,size-1, "red")
+        markstepper(self.size.width()/2.88, self.size.height()/2.49, 30,50,size-1, "red")
+        self.color = "white"
+        
         
 
     def get_data(self):
         return (self.hex_pos, self.hex_color)
     def brushset(self):
-        if self.color == "black":
+        if self.color == "white":
             return QBrush(Qt.white)
         if self.color == "red":
             return QBrush(Qt.red)
@@ -98,10 +106,8 @@ class Window(QMainWindow):
         if event.button() == Qt.LeftButton:
             if self.player_color == True:
                 self.hexcolor.append(self.player_color)
-                #print((event.x(), event.y()))
                 self.hexpos.append((event.x(), event.y()))
                 self.player_color = False
-            #вставь ИИ здесь
             self.update()
     
     def hex(self, x, y):
